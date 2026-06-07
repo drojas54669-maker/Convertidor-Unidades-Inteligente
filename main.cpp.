@@ -1,0 +1,58 @@
+/**
+ * @file main.cpp
+ * @brief Punto de entrada principal para probar el convertidor inteligente de unidades.
+ * @author Diego Rojas Botello
+ * @date 07/06/2026
+ */
+
+#include "Unidad.h"
+#include <iostream>
+#include <iomanip>
+
+/**
+ * @brief Función principal del sistema.
+ * @details Configura el grafo de unidades con factores reales y expone un menú interactivo.
+ * @return 0 al finalizar la ejecución de forma correcta.
+ */
+int main() {
+    GrafoConversor conversor;
+
+    // --- REGISTRO DE UNIDADES DE LONGITUD ---
+    // Unidades base y sus factores respecto al metro (m)
+    conversor.agregarConversion("m", "cm", 100.0);       // 1 metro = 100 centímetros
+    conversor.agregarConversion("m", "km", 0.001);       // 1 metro = 0.001 kilómetros
+    conversor.agregarConversion("m", "inch", 39.3701);   // 1 metro = 39.3701 pulgadas
+
+    // Conexión aislada a propósito: pulgada a pie
+    conversor.agregarConversion("inch", "ft", 0.0833333); // 1 pulgada = 1/12 de pie
+
+    // --- REGISTRO DE UNIDADES DE MASA ---
+    conversor.agregarConversion("kg", "g", 1000.0);      // 1 kg = 1000 gramos
+    conversor.agregarConversion("kg", "lb", 2.20462);    // 1 kg = 2.20462 libras
+
+    std::cout << "====================================================\n";
+    std::cout << "      CONVERTIDOR DE UNIDADES INTELIGENTE (GRAFOS)  \n";
+    std::cout << "====================================================\n\n";
+
+    // Prueba 1: Conversión Directa (m -> cm)
+    double m_a_cm = conversor.convertir("m", "cm", 5.0);
+    std::cout << "[DIRECTA] 5 metros equivalen a: " << m_a_cm << " cm\n";
+
+    // Prueba 2: Conversión Indirecta Multisalto (km -> ft)
+    // El algoritmo buscará de forma inteligente la ruta: km -> m -> inch -> ft
+    double km_a_ft = conversor.convertir("km", "ft", 1.0);
+    std::cout << "[INDIRECTA MULTISALTO] 1 kilometro equivale a: " 
+              << std::fixed << std::setprecision(2) << km_a_ft << " ft\n";
+
+    // Prueba 3: Conversión imposible (Intentar convertir longitud a masa: m -> kg)
+    double error_long_masa = conversor.convertir("m", "kg", 10.0);
+    std::cout << "[PRUEBA ERROR] Intentando convertir 10 m a kg: ";
+    if (error_long_masa == -1.0) {
+        std::cout << "ERROR: No existe una ruta de conversion valida entre estas unidades.\n";
+    } else {
+        std::cout << error_long_masa << "\n";
+    }
+
+    std::cout << "\n====================================================\n";
+    return 0;
+}
