@@ -1,5 +1,4 @@
 name: Compilacion y Documentacion Automatica
-
 on:
   push:
     branches: [ main, develop ]
@@ -20,7 +19,7 @@ jobs:
 
     - name: Compilar y Ejecutar C++
       run: |
-        g++ main.cpp GrafoConversor.cpp -o convertidor
+        g++ main.cpp -o convertidor
         ./convertidor > salida_ejecucion.txt
 
     - name: Generar Documentacion
