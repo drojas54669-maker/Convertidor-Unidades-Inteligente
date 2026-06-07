@@ -32,9 +32,6 @@ struct Arista {
  * @brief Clase que gestiona las unidades de medida y calcula sus conversiones mediante rutas.
  */
 class GrafoConversor {
-private:
-    // En el siguiente paso añadiremos la lista de adyacencia y lógica interna.
-    
 public:
     /**
      * @brief Constructor por defecto del grafo.
@@ -54,6 +51,15 @@ public:
      * @param factor Valor por el que se multiplica para convertir de origen a destino.
      */
     void agregarConversion(const std::string& origen, const std::string& destino, double factor);
+
+    /**
+     * @brief Convierte un valor de una unidad origen a una destino usando BFS.
+     * @param origen Unidad de entrada.
+     * @param destino Unidad de salida deseada.
+     * @param valor Cantidad numérica a transformar.
+     * @return El valor convertido. Si no hay ruta, retorna -1.0.
+     */
+    double convertir(const std::string& origen, const std::string& destino, double valor);
 };
 
 #endif // UNIDAD_H
