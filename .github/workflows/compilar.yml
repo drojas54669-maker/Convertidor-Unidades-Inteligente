@@ -18,20 +18,16 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential doxygen
 
-    - name: Compilar Codigo C++
+    - name: Compilar y Ejecutar C++
       run: |
-        g++ -std=c++17 main.cpp GrafoConversor.cpp -o convertidor
-
-    - name: Ejecutar Convertidor y Capturar Consola
-      run: |
+        g++ main.cpp GrafoConversor.cpp -o convertidor
         ./convertidor > salida_ejecucion.txt
-        cat salida_ejecucion.txt
 
-    - name: Generar Documentacion Doxygen
+    - name: Generar Documentacion
       run: |
         doxygen Doxyfile
 
-    - name: Guardar Resultados como Artefactos
+    - name: Guardar Resultados
       uses: actions/upload-artifact@v4
       with:
         name: resultados-proyecto
