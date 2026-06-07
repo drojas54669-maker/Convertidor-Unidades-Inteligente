@@ -1,50 +1,141 @@
 /**
  * @file main.cpp
- * @brief Punto de entrada principal para probar el convertidor inteligente de unidades.
+ * @brief Convertidor de unidades inteligente basado en teoría de grafos y BFS.
  * @author Diego Rojas Botello
  * @date 07/06/2026
  */
 
-#include "Unidad.h"
 #include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <queue>
+#include <set>
 #include <iomanip>
 
 /**
+ * @struct Arista
+ * @brief Representa una conexión dirigida entre dos unidades (un factor de conversión).
+ */
+struct Arista {
+    std::string destino; /**< Nombre de la unidad destino (ej. "cm") */
+    double factor;       /**< Factor multiplicador para la conversión (ej. 100.0) */
+
+    /**
+     * @brief Constructor de la estructura Arista.
+     * @param dest Unidad de destino.
+     * @param fac Factor de conversión.
+     */
+    Arista(std::string dest, double fac) : destino(dest), factor(fac) {}
+};
+
+/**
+ * @class GrafoConversor
+ * @brief Clase que gestiona las unidades de medida y calcula sus conversiones mediante rutas.
+ */
+class GrafoConversor {
+private:
+    std::map<std::string, std::vector<Arista>> listaAdyacencia; /**< Lista de adyacencia del grafo */
+
+public:
+    /**
+     * @brief Constructor por defecto del grafo.
+     */
+    GrafoConversor() {}
+
+    /**
+     * @brief Agrega una nueva unidad al sistema (Nodo).
+     * @param nombre Nombre único de la unidad (ej. "metros").
+     */
+    void agregarUnidad(const std::string& nombre) {
+        if (listaAdyacencia.find(nombre) == listaAdyacencia.end()) {
+            listaAdyacencia[nombre] = std::vector<Arista>();
+        }
+    }
+
+    /**
+     * @brief Agrega una conversión directa entre dos unidades (Arista dirigida).
+     * @param origen Unidad de partida.
+     * @param destino Unidad de llegada.
+     * @param factor Valor por el que se multiplica para convertir de origen a destino.
+     */
+    void agregarConversion(const std::string& origen, const std::string& destino, double factor) {
+        agregarUnidad(origen);
+        agregarUnidad(destino);
+        listaAdyacencia[origen].push_back(Arista(destino, factor));
+        if (factor != 0.0) {
+            listaAdyacencia[destino].push_back(Arista(origen, 1.0 / factor));
+        }
+    }
+
+    /**
+     * @brief Convierte un valor de una unidad origen a una destino usando BFS.
+     * @param origen Unidad de entrada.
+     * @param destino Unidad de salida deseada.
+     * @param valor Cantidad numérica a transformar.
+     * @return El valor convertido. Si no hay ruta, retorna -1.0.
+     */
+    double convertir(const std::string& origen, const std::string& destino, double valor) {
+        if (listaAdyacencia.find(origen) == listaAdyacencia.end() || 
+            listaAdyacencia.find(destino) == listaAdyacencia.end()) {
+            return -1.0; 
+        }
+
+        if (origen == destino) return valor;
+
+        std::queue<std::pair<std::string, double>> colaBusqueda;
+        std::set<std::string> visitados;
+
+        colaBusqueda.push({origen, 1.0});
+        visitados.insert(origen);
+
+        while (!colaBusqueda.empty()) {
+            std::string unidadActual = colaBusqueda.front().first;
+            double factorAcumulado = colaBusqueda.front().second;
+            colaBusqueda.pop();
+
+            if (unidadActual == destino) {
+                return valor * factorAcumulado;
+            }
+
+            for (const auto& arista : listaAdyacencia[unidadActual]) {
+                if (visitados.find(arista.destino) == visitados.end()) {
+                    visitados.insert(arista.destino);
+                    colaBusqueda.push({arista.destino, factorAcumulado * arista.factor});
+                }
+            }
+        }
+
+        return -1.0; 
+    }
+};
+
+/**
  * @brief Función principal del sistema.
- * @details Configura el grafo de unidades con factores reales y expone un menú interactivo.
  * @return 0 al finalizar la ejecución de forma correcta.
  */
 int main() {
     GrafoConversor conversor;
 
-    // --- REGISTRO DE UNIDADES DE LONGITUD ---
-    // Unidades base y sus factores respecto al metro (m)
-    conversor.agregarConversion("m", "cm", 100.0);       // 1 metro = 100 centímetros
-    conversor.agregarConversion("m", "km", 0.001);       // 1 metro = 0.001 kilómetros
-    conversor.agregarConversion("m", "inch", 39.3701);   // 1 metro = 39.3701 pulgadas
-
-    // Conexión aislada a propósito: pulgada a pie
-    conversor.agregarConversion("inch", "ft", 0.0833333); // 1 pulgada = 1/12 de pie
-
-    // --- REGISTRO DE UNIDADES DE MASA ---
-    conversor.agregarConversion("kg", "g", 1000.0);      // 1 kg = 1000 gramos
-    conversor.agregarConversion("kg", "lb", 2.20462);    // 1 kg = 2.20462 libras
+    // Registro de Unidades
+    conversor.agregarConversion("m", "cm", 100.0);       
+    conversor.agregarConversion("m", "km", 0.001);       
+    conversor.agregarConversion("m", "inch", 39.3701);   
+    conversor.agregarConversion("inch", "ft", 0.0833333); 
+    conversor.agregarConversion("kg", "g", 1000.0);      
+    conversor.agregarConversion("kg", "lb", 2.20462);    
 
     std::cout << "====================================================\n";
     std::cout << "      CONVERTIDOR DE UNIDADES INTELIGENTE (GRAFOS)  \n";
     std::cout << "====================================================\n\n";
 
-    // Prueba 1: Conversión Directa (m -> cm)
     double m_a_cm = conversor.convertir("m", "cm", 5.0);
     std::cout << "[DIRECTA] 5 metros equivalen a: " << m_a_cm << " cm\n";
 
-    // Prueba 2: Conversión Indirecta Multisalto (km -> ft)
-    // El algoritmo buscará de forma inteligente la ruta: km -> m -> inch -> ft
     double km_a_ft = conversor.convertir("km", "ft", 1.0);
     std::cout << "[INDIRECTA MULTISALTO] 1 kilometro equivale a: " 
               << std::fixed << std::setprecision(2) << km_a_ft << " ft\n";
 
-    // Prueba 3: Conversión imposible (Intentar convertir longitud a masa: m -> kg)
     double error_long_masa = conversor.convertir("m", "kg", 10.0);
     std::cout << "[PRUEBA ERROR] Intentando convertir 10 m a kg: ";
     if (error_long_masa == -1.0) {
