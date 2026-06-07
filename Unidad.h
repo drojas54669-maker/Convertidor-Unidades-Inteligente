@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 /**
  * @struct Arista
@@ -32,6 +33,9 @@ struct Arista {
  * @brief Clase que gestiona las unidades de medida y calcula sus conversiones mediante rutas.
  */
 class GrafoConversor {
+private:
+    std::map<std::string, std::vector<Arista>> listaAdyacencia; /**< Lista de adyacencia del grafo */
+    
 public:
     /**
      * @brief Constructor por defecto del grafo.
