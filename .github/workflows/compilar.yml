@@ -16,11 +16,14 @@ jobs:
     - name: Instalar Compilador y Doxygen
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential doxygen graphviz
+        sudo apt-get install -y build-essential doxygen
 
-    - name: Compilar y Ejecutar el Codigo C++
+    - name: Compilar Codigo C++
       run: |
         g++ -std=c++17 main.cpp GrafoConversor.cpp -o convertidor
+
+    - name: Ejecutar Convertidor y Capturar Consola
+      run: |
         ./convertidor > salida_ejecucion.txt
         cat salida_ejecucion.txt
 
