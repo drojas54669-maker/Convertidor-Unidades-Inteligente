@@ -1,0 +1,27 @@
+# Configuration for Doxygen
+PROJECT_NAME           = "Convertidor de Unidades Inteligente"
+PROJECT_NUMBER         = "1.0.0"
+OUTPUT_DIRECTORY       = "doc_output"
+CREATE_SUBDIRS         = NO
+OUTPUT_LANGUAGE        = Spanish
+BRIEF_MEMBER_DESC      = YES
+REPEAT_BRIEF           = YES
+
+# Input files options
+INPUT                  = .
+FILE_PATTERNS          = *.h *.cpp
+RECURSIVE              = NO
+
+# Extraction options
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+
+# Build options
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+
+# Generation formats
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_LATEX         = NO
