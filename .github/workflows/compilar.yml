@@ -1,0 +1,37 @@
+name: Compilacion y Documentacion Automatica
+
+on:
+  push:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Descargar codigo del repositorio
+      uses: actions/checkout@v4
+
+    - name: Instalar Compilador y Doxygen
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential doxygen graphviz
+
+    - name: Compilar y Ejecutar el Codigo C++
+      run: |
+        g++ -std=c++17 main.cpp GrafoConversor.cpp -o convertidor
+        ./convertidor > salida_ejecucion.txt
+        cat salida_ejecucion.txt
+
+    - name: Generar Documentacion Doxygen
+      run: |
+        doxygen Doxyfile
+
+    - name: Guardar Resultados como Artefactos
+      uses: actions/upload-artifact@v4
+      with:
+        name: resultados-proyecto
+        path: |
+          salida_ejecucion.txt
+          doc_output/
